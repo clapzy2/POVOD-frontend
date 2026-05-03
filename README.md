@@ -1,93 +1,147 @@
-# frontend
+# Frontend
 
+Это репозиторий с клиентской частью проекта команды на хакатоне (май 2026).
+Задача репозитория — фронтенд приложения (обычно React), который собирается и автоматически деплоится на стенд команды.
 
+## Что вы делаете в этом репозитории
 
-## Getting started
+- Пишете фронтенд‑код (React или другой SPA/CSR‑фреймворк по согласованию).
+- Поддерживаете структуру проекта в рабочем состоянии (сборка не должна падать).
+- Работаете с ветками (`feature/*` → `develop` → при необходимости `main`).
+- Следите, чтобы pipeline проходил успешно и стенд обновлялся.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Технологический стек
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Базовые ожидания:
 
-## Add your files
+- JavaScript/TypeScript.
+- React (рекомендуется) + выбранный вами router/state‑management.
+- Сборщик: Vite / CRA / Next SPA‑режим / другой современный инструмент.
+- Docker (уже настроен в репозитории) — для сборки образа.
+- GitLab CI/CD — для сборки и деплоя на стенд.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Вы можете подключать дополнительные библиотеки, если:
 
+- не ломаете существующий `Dockerfile` и `.gitlab-ci.yml`;
+- не требуете дополнительных контейнеров/сервисов без согласования с наставником.
+
+## Структура репозитория
+
+Типичная структура:
+
+```text
+.
+├── src/
+├── public/
+├── package.json
+├── package-lock.json / yarn.lock / pnpm-lock.yaml
+├── Dockerfile
+├── .gitlab-ci.yml
+└── README.md
 ```
-cd existing_repo
-git remote add origin https://gitlab.kam-dev.ru/hackathon-2026/team-5/frontend.git
-git branch -M main
-git push -uf origin main
+
+Файлы `Dockerfile` и `.gitlab-ci.yml` уже подготовлены.  
+Изменять их можно только при согласовании с наставником/DevOps‑командой.
+
+## Ветки и git‑флоу
+
+Используем простую модель:
+
+- `main` — основная защищённая ветка (в прод/на показ).
+- `develop` — основная рабочая ветка команды.
+- `feature/*` — рабочие ветки под задачи.
+
+Рекомендуемый процесс:
+
+1. Отвести ветку от `develop`:  
+   `feature/<краткое-имя-задачи>`.
+2. Сделать в ней изменения.
+3. Убедиться, что проект собирается локально.
+4. Запушить ветку и создать merge request в `develop`.
+5. После ревью/проверки слить MR → сработает pipeline `develop`.
+6. В зависимости от правил команды и наставника,
+   возможен отдельный merge `develop` → `main` для финальных версий.
+
+Автодеплой на стенд будет настроен на одну или обе ветки (`develop`/`main`) — смотрите комментарии в `.gitlab-ci.yml` и договоренности с наставником.
+
+## Локальный запуск
+
+Пример для npm (если используется другой пакетный менеджер — аналогично):
+
+### Установка зависимостей
+
+```bash
+npm install
 ```
 
-## Integrate with your tools
+### Запуск в dev‑режиме
 
-* [Set up project integrations](https://gitlab.kam-dev.ru/hackathon-2026/team-5/frontend/-/settings/integrations)
+```bash
+npm run dev
+# или
+npm start
+```
 
-## Collaborate with your team
+### Production‑сборка
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+```bash
+npm run build
+```
 
-## Test and Deploy
+Список скриптов и точные команды смотрите в `package.json`.
 
-Use the built-in continuous integration in GitLab.
+## CI/CD: как работает pipeline
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Для фронтенда уже настроен типовой pipeline, который:
 
-***
+1. Устанавливает зависимости.
+2. Собирает проект.
+3. Собирает Docker‑образ.
+4. Публикует образ в Git‑регистри.
+5. Деплоит образ на стенд команды.
 
-# Editing this README
+Вам важно:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- не ломать `Dockerfile` и `.gitlab-ci.yml` без обсуждения;
+- следить, что pipeline зелёный после ваших изменений;
+- смотреть лог pipeline, если деплой не прошёл.
 
-## Suggestions for a good README
+## Управление деплоем через переменные
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Для фронтенда используется одна ключевая CI‑переменная:
 
-## Name
-Choose a self-explaining name for your project.
+- `ENABLE_FRONTEND=true|false`  
+  Если `false`, фронтенд не деплоится (полезно для проектов, где есть только бот / API).
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Эту переменную меняют наставники/ответственные за стенд в настройках проекта.  
+Участникам важно знать, что:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- выключенный фронтенд не означает, что pipeline «сломался»;
+- если стенд не обновляется, сначала проверить, включён ли `ENABLE_FRONTEND`.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Стенд команды
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+После успешного pipeline фронтенд доступен по адресу, зависящему от номера команды.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Пример (для team‑1):
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- `https://team-5.hack.kam-dev.ru`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Конкретный адрес вам сообщат наставники.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Правила по секретам
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Нельзя:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+- коммитить `.env` с реальными токенами;
+- хранить пароли, ключи и токены прямо в коде;
+- писать в исходники URL и токены бэкенда, которые должны быть приватными.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Секреты хранятся в переменных окружения CI/CD и/или в настройках стенда.  
+Если вам нужны новые переменные — обсудите это с наставником.
 
-## License
-For open source projects, say how it is licensed.
+## Что важно помнить
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- Этот репозиторий — только фронтенд, бизнес‑логика может быть и в backend‑репозитории.
+- Любые изменения инфраструктуры (Docker, CI/CD) согласовывайте заранее.
+- Основная ваша задача — сделать работающий интерфейс, который корректно общается с backend/ботом и не падает при сборке.
