@@ -5,17 +5,10 @@ import styled from "@emotion/styled";
 import "@vkontakte/vkui/dist/vkui.css";
 import { useNavigate } from "react-router-dom";
 
-// const PageRoot = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   min-height: 100%;
-//   background: transparent;
-//   box-sizing: border-box;
-// `;
 const PageRoot = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 90vh; 
+  min-height: 90vh;
   background: transparent;
   box-sizing: border-box;
 `;
@@ -100,17 +93,6 @@ const ChipsContainer = styled.div`
   padding: 0 16px 16px;
 `;
 
-// const StyledChip = styled(Chip)`
-//   background-color: #2688eb;
-//   color: #ffffff;
-//   border-radius: 10px;
-
-//   &[data-type="add"] {
-//     background-color: transparent;
-//     color: #99a2ad;
-//     border: 1px solid #d7d8d9;
-//   }
-// `;
 const StyledChip = styled(Chip)`
   background-color: #2688eb !important;
   & .vkuiChip__content {
@@ -120,7 +102,7 @@ const StyledChip = styled(Chip)`
   &[data-type="add"] {
     background-color: transparent !important;
     border: 1px solid #d7d8d9;
-    
+
     & .vkuiChip__content {
       color: #99a2ad !important;
     }
@@ -169,63 +151,62 @@ const UserProfile = () => {
 
   return (
     <PageRoot>
-    <ContentWrapper> 
-      <TopBar>
-        <ProfileTitle>Мой профиль</ProfileTitle>
-        <CloseButton type="button" aria-label="Закрыть" onClick={handleCloseProfile}>
-          <Icon28CancelOutline />
-        </CloseButton>
-      </TopBar>
+      <ContentWrapper>
+        <TopBar>
+          <ProfileTitle>Мой профиль</ProfileTitle>
+          <CloseButton type="button" aria-label="Закрыть" onClick={handleCloseProfile}>
+            <Icon28CancelOutline />
+          </CloseButton>
+        </TopBar>
 
-      <Group mode="plain" padding="s">
-        <ProfileWrapper>
-          <Avatar
-            size={96}
-            src="https://avatars.mds.yandex.net/i?id=84fb949b57c566a07f81dd3a26a2d038_sr-7554713-images-thumbs&n=13"
-          />
-          <UserName>Игнатьева Василиса</UserName>
-          <LocationWrapper>
-            <Icon20PlaceOutline width={16} height={16}  />
-            Санкт-Петербург
-          </LocationWrapper>
-        </ProfileWrapper>
+        <Group mode="plain" padding="s">
+          <ProfileWrapper>
+            <Avatar
+              size={96}
+              src="https://avatars.mds.yandex.net/i?id=84fb949b57c566a07f81dd3a26a2d038_sr-7554713-images-thumbs&n=13"
+            />
+            <UserName>Игнатьева Василиса</UserName>
+            <LocationWrapper>
+              <Icon20PlaceOutline width={16} height={16} />
+              Санкт-Петербург
+            </LocationWrapper>
+          </ProfileWrapper>
 
-        <InterestsHeading>Мои интересы</InterestsHeading>
-        <ChipsContainer>
-          {interests.map((item) => (
-            <StyledChip key={item} removable={false}>
-              {item}
+          <InterestsHeading>Мои интересы</InterestsHeading>
+          <ChipsContainer>
+            {interests.map((item) => (
+              <StyledChip key={item} removable={false}>
+                {item}
+              </StyledChip>
+            ))}
+            <StyledChip
+              data-type="add"
+              removable={false}
+              after={<Icon24AddOutline width={16} height={16} />}
+            >
+              Добавить
             </StyledChip>
-          ))}
-          <StyledChip
-            data-type="add"
-            removable={false}
-            after={<Icon24AddOutline width={16} height={16} />}
-          >
-            Добавить
-          </StyledChip>
-        </ChipsContainer>
+          </ChipsContainer>
 
-        <BrightSwitchScope>
-          <SimpleCell
-            after={
-              <Switch checked={notifications} onChange={() => setNotifications(!notifications)} />
-            }
-          >
-            Уведомления
-          </SimpleCell>
-          <SimpleCell
-            after={<Switch checked={invitations} onChange={() => setInvitations(!invitations)} />}
-          >
-            Приглашения на события
-          </SimpleCell>
-        </BrightSwitchScope>
-      </Group>
-    </ContentWrapper>
+          <BrightSwitchScope>
+            <SimpleCell
+              after={
+                <Switch checked={notifications} onChange={() => setNotifications(!notifications)} />
+              }
+            >
+              Уведомления
+            </SimpleCell>
+            <SimpleCell
+              after={<Switch checked={invitations} onChange={() => setInvitations(!invitations)} />}
+            >
+              Приглашения на события
+            </SimpleCell>
+          </BrightSwitchScope>
+        </Group>
+      </ContentWrapper>
 
-    {/* Теперь эта кнопка всегда будет внизу, так как ContentWrapper сверху занял всё свободное место */}
-    <LogoutButton onClick={handleExit}>Выйти</LogoutButton>
-  </PageRoot>
+      <LogoutButton onClick={handleExit}>Выйти</LogoutButton>
+    </PageRoot>
   );
 };
 

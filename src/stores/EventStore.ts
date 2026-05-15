@@ -1,6 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
 
-// Интерфейс данных
 interface IEvent {
   id: number;
   title: string;

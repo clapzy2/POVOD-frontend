@@ -5,7 +5,7 @@
 }
 
 .spinner-svg {
-  transform: rotate(-90deg); /* Начальная точка сверху */
+  transform: rotate(-90deg); 
 }
 
 .spinner-path {

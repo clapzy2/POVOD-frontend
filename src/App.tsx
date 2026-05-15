@@ -1,57 +1,3 @@
-// import styled from "@emotion/styled";
-// import { Outlet } from "react-router-dom";
-// import NavMenu from "./components/NavMenu";
-// import { TestHeader } from "./components/Header/Header";
-
-// const AppContainer = styled.div`
-//   min-height: 100vh;
-//   display: flex;
-//   flex-direction: column;
-//   background: var(--bg-color);
-//   color: var(--text-color);
-//   transition:
-//     background 0.3s ease,
-//     color 0.3s ease;
-// `;
-
-// const MainContent = styled.div`
-//   display: flex;
-//   flex: 1;
-//   gap: 20px;
-//   padding: 24px;
-
-//   @media (max-width: 768px) {
-//     flex-direction: column;
-//     gap: 16px;
-//     padding: 18px 16px 20px;
-//   }
-// `;
-
-// // export default App;
-// import { observer } from "mobx-react-lite";
-// import { rootStore } from "./stores/rootStore";
-// import { useEffect } from "react";
-
-// const App = observer(() => {
-//   useEffect(() => {
-//     rootStore.loadBackendStatus();
-//   }, []);
-
-//   return (
-//     <AppContainer>
-//       <TestHeader />
-//       {rootStore.error && <div style={{ color: "red" }}>{rootStore.error}</div>}
-//       <MainContent>
-//         <NavMenu />
-//         <main style={{ flex: 1 }}>
-//           <Outlet />
-//         </main>
-//       </MainContent>
-//     </AppContainer>
-//   );
-// });
-// export default App;
-
 import styled from "@emotion/styled";
 import { Outlet } from "react-router-dom";
 import NavMenu from "./components/NavMenu";
@@ -111,11 +57,8 @@ const MainContent = styled.div`
 //   }, []);
 
 //   return (
-//     /* 1. ConfigProvider управляет темой и платформой */
 //     <ConfigProvider>
-//       {/* 2. AdaptivityProvider отвечает за адаптивность под разные экраны */}
 //       <AdaptivityProvider>
-//         {/* 3. AppRoot — основной контейнер для порталов и модальных окон */}
 //         <AppRoot>
 //           <AppContainer>
 //             <TestHeader />
@@ -125,7 +68,6 @@ const MainContent = styled.div`
 //             )}
 
 //             <MainContent>
-//               {/* 1. Навигация теперь ВНЕ SplitLayout, поэтому она будет сверху */}
 //               <NavMenu />
 
 //               {/* 2. Контентная часть под меню */}
@@ -135,7 +77,6 @@ const MainContent = styled.div`
 //                     <Outlet />
 //                   </main>
 //                 </SplitCol>
-//                 {/* Пример отображения данных ВК */}
 //                 {/* <UserInfo /> */}
 //               </SplitLayout>
 //             </MainContent>

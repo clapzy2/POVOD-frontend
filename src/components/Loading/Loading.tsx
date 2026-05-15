@@ -1,6 +1,5 @@
 import React from "react";
 
-// Определяем карту размеров
 const sizeMap = {
   xs: 20,
   sm: 40,
@@ -10,7 +9,6 @@ const sizeMap = {
 };
 
 interface SpinnerProps {
-  // Теперь size может быть либо числом, либо ключом из нашего объекта
   size?: keyof typeof sizeMap | number;
   strokeWidth?: number;
   color?: string;

@@ -1,69 +1,3 @@
-// // import { FormLayoutGroup, FormItem, Input, Button, Headline } from "@vkontakte/vkui";
-// // import "@vkontakte/vkui/dist/vkui.css"; // Убедитесь, что стили импортированы
-
-// import { FormLayoutGroup, FormItem, Input, Button, Headline } from "@vkontakte/vkui";
-// import "@vkontakte/vkui/dist/vkui.css";
-// import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router";
-// import { validatePassword } from "../../utils/ValidatePass";
-
-// export const MyLoginForm = () => {
-//   const navigate = useNavigate();
-//   const [passwordError, setPasswordError] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   useEffect(() => {
-//     // Если флаг есть, выкидываем пользователя на страницу 1
-//     console.log(localStorage.getItem("isAuth"));
-//     if (localStorage.getItem("isAuth") === "true") {
-//       navigate("/page-1", { replace: true });
-//     }
-//   }, [navigate]);
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     const passwordCheck = validatePassword(password);
-//     if (!passwordCheck.isValid) {
-//       setPasswordError(passwordCheck.message);
-//       return;
-//     }
-
-//     setPasswordError("");
-//     console.log("Форма отправлена!");
-//     localStorage.setItem("isAuth", "true"); // Отмечаем, что пользователь вошел
-//     navigate("/page-1", { replace: true });
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <FormLayoutGroup>
-//         <Headline level="2" weight="2" style={{ marginBottom: 16 }}>
-//           Вход в систему
-//         </Headline>
-
-//         <FormItem top="Email" htmlFor="email">
-//           <Input id="email" type="email" placeholder="example@mail.com" align="left" required />
-//         </FormItem>
-
-//         <FormItem top="Пароль" htmlFor="password" bottom={passwordError}>
-//           <Input
-//             id="password"
-//             type="password"
-//             placeholder="Введите пароль"
-//             required
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//           />
-//         </FormItem>
-
-//         <FormItem>
-//           <Button size="l" stretched type="submit">
-//             Отправить
-//           </Button>
-//         </FormItem>
-//       </FormLayoutGroup>
-//     </form>
-//   );
-// };
 import styled from "@emotion/styled";
 import { Button } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -91,12 +25,12 @@ const HeroCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  flex-shrink: 0; /* Чтобы карточка не сжималась */
+  flex-shrink: 0;
 `;
 
 const ImageStack = styled.div`
   position: relative;
-  height: 300px; /* Немного уменьшили, чтобы влезло на маленькие экраны */
+  height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -105,7 +39,7 @@ const ImageStack = styled.div`
 
 const HeroImage = styled.div<{ $zIndex: number; $top?: string; $left?: string; $image?: string }>`
   position: absolute;
-  width: 70%; /* Уменьшили ширину для безопасности */
+  width: 70%;
   height: 180px;
   border-radius: 24px;
   background-image: url(${(props) => props.$image});
@@ -116,7 +50,6 @@ const HeroImage = styled.div<{ $zIndex: number; $top?: string; $left?: string; $
   left: ${(props) => props.$left || "auto"};
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 4px solid white;
-  /* Ограничиваем поворот, чтобы края не выходили за экран */
   transform: rotate(${(props) => (props.$zIndex === 1 ? "-5deg" : "3deg")});
 `;
 
@@ -127,13 +60,13 @@ const TextCard = styled.div`
   gap: 12px;
   text-align: center;
   margin-top: 10px;
-  flex-grow: 1; /* Занимает свободное место */
+  flex-grow: 1;
 `;
 
 const PageTitle = styled.h1`
-  font-size: 28px; /* Чуть уменьшили для мобильных */
+  font-size: 28px;
   font-weight: 800;
-  color: #000000; /* Черный текст */
+  color: #000000;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;

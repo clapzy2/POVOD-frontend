@@ -1,4 +1,3 @@
-// src/components/EventMap/EventMap.tsx
 import React, { useEffect, useRef } from "react";
 
 interface EventMapProps {
@@ -9,54 +8,6 @@ export const EventMap: React.FC<EventMapProps> = ({ coords }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletInstance = useRef<any>(null);
 
-  //   useEffect(() => {
-  //     const init = () => {
-  //       const L = (window as any).L;
-  //       if (!L || !mapRef.current) return;
-
-  //       if (leafletInstance.current) {
-  //         leafletInstance.current.remove();
-  //       }
-
-  //       leafletInstance.current = L.map(mapRef.current, {
-  //         attributionControl: false,
-  //         zoomControl: false,
-  //       }).setView(coords, 14);
-
-  //       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
-  //         leafletInstance.current,
-  //       );
-
-  //       const customIcon = L.divIcon({
-  //         className: "custom-div-icon",
-  //         html: `<div style="background-color:var(--vkui--color_background_accent); width:12px; height:12px; border-radius:50%; border:3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>`,
-  //         iconSize: [12, 12],
-  //         iconAnchor: [6, 6],
-  //       });
-
-  //       L.marker(coords, { icon: customIcon }).addTo(leafletInstance.current);
-  //       setTimeout(() => {
-  //         leafletInstance.current.invalidateSize();
-  //       }, 200);
-  //     };
-
-  //     // Простая проверка наличия Leaflet в окне
-  //     if (!(window as any).L) {
-  //       const script = document.createElement("script");
-  //       script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-  //       script.onload = init;
-  //       document.body.appendChild(script);
-  //     } else {
-  //       init();
-  //     }
-
-  //     return () => {
-  //       if (leafletInstance.current) {
-  //         leafletInstance.current.remove();
-  //         leafletInstance.current = null;
-  //       }
-  //     };
-  //   }, [coords]);
   useEffect(() => {
     if (!document.getElementById("leaflet-css")) {
       const link = document.createElement("link");
@@ -66,7 +17,6 @@ export const EventMap: React.FC<EventMapProps> = ({ coords }) => {
       document.head.appendChild(link);
     }
 
-    // 2. CSS-фикс для тайлов (чтобы VKUI не сжимал их)
     if (!document.getElementById("leaflet-vkui-fix")) {
       const style = document.createElement("style");
       style.id = "leaflet-vkui-fix";

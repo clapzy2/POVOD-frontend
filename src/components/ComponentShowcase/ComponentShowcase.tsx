@@ -50,9 +50,7 @@ export const ComponentShowcase = () => {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (formErrors[name]) {
@@ -137,7 +135,6 @@ export const ComponentShowcase = () => {
             </FormGroup>
 
             <FormGroup>
-              {/* required для обязательного поля */}
               <Label htmlFor="message" required>
                 Сообщение
               </Label>
@@ -159,9 +156,7 @@ export const ComponentShowcase = () => {
               <Button
                 type="reset"
                 variant="secondary"
-                onClick={() =>
-                  setFormData({ name: "", email: "", message: "" })
-                }
+                onClick={() => setFormData({ name: "", email: "", message: "" })}
               >
                 Очистить
               </Button>
@@ -173,9 +168,7 @@ export const ComponentShowcase = () => {
       <Section>
         <SectionTitle $mode={theme}>Модальное окно</SectionTitle>
         <ButtonGroup>
-          <Button onClick={() => setIsModalOpen(true)}>
-            Открыть модальное окно
-          </Button>
+          <Button onClick={() => setIsModalOpen(true)}>Открыть модальное окно</Button>
         </ButtonGroup>
 
         <Modal
@@ -200,8 +193,8 @@ export const ComponentShowcase = () => {
           }
         >
           <p>
-            Это пример модального окна с кнопками. Вы можете закрыть его, нажав
-            на кнопку, нажав на кнопку закрытия или нажав Escape.
+            Это пример модального окна с кнопками. Вы можете закрыть его, нажав на кнопку, нажав на
+            кнопку закрытия или нажав Escape.
           </p>
           <p>Окно в светлом оформлении.</p>
         </Modal>

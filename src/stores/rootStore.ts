@@ -4,7 +4,6 @@ interface BackendStatus {
   service: string;
   status: string;
   database_enabled: boolean;
-  // добавьте другие поля из ответа /health по необходимости
 }
 
 class RootStore {
@@ -18,7 +17,6 @@ class RootStore {
   // private apiUrl = "https://team-5.hack.kam-dev.ru";
 
   constructor() {
-    // Делает все свойства отслеживаемыми, а методы — экшенами
     makeAutoObservable(this);
   }
 
@@ -39,7 +37,6 @@ class RootStore {
       const ping = await pingResponse.json();
       const health = await healthResponse.json();
 
-      // В MobX после асинхронных вызовов изменение состояния должно быть внутри runInAction
       runInAction(() => {
         this.pingData = ping;
         this.healthData = health;

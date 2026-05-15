@@ -1,8 +1,3 @@
-/**
- * Проверяет пароль на соответствие требованиям безопасности.
- * @param password - строка пароля
- * @returns объект с результатом проверки и сообщением об ошибке
- */
 export const validatePassword = (password: string) => {
   if (!password) {
     return {
@@ -18,7 +13,6 @@ export const validatePassword = (password: string) => {
     };
   }
 
-  // Здесь можно добавить проверку на цифры или спецсимволы, если нужно
   // const hasNumber = /\d/.test(password);
   // if (!hasNumber) return { isValid: false, message: "Нужна хотя бы одна цифра" };
 

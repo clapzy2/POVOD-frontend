@@ -174,25 +174,6 @@ export const Modal = ({
     </Overlay>,
     document.body,
   );
-
-  // return (
-  //   <Overlay isOpen={isOpen} onClick={handleBackdropClick}>
-  //     <ModalContent $mode={theme} size={size}>
-  //       {title && (
-  //         <ModalHeader $mode={theme}>
-  //           <ModalTitle>{title}</ModalTitle>
-  //           <CloseButton $mode={theme} onClick={onClose} aria-label="Закрыть" title="Закрыть (Esc)">
-  //             ✕
-  //           </CloseButton>
-  //         </ModalHeader>
-  //       )}
-
-  //       <ModalBody>{children}</ModalBody>
-
-  //       {footer && <ModalFooter $mode={theme}>{footer}</ModalFooter>}
-  //     </ModalContent>
-  //   </Overlay>
-  // );
 };
 
 export default Modal;
