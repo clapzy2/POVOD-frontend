@@ -397,8 +397,7 @@ export default function CreateEventForm() {
       time: formData.timeFrom,
       location: formData.location,
       category: formData.categories[0] || "Общее",
-      image:
-        "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=300&h=300&auto=format&fit=crop", // заглушка фото
+      image: formData.photoData || "https://c.stocksy.com/a/6QWO00/z9/5844498.jpg",
     };
 
     eventStore.addCreatedEvent(newEvent);
@@ -415,6 +414,7 @@ export default function CreateEventForm() {
           textAlign: "center",
           color: "white",
           fontWeight: "bold",
+          borderRadius: "20px",
         }}
       >
         Создать повод

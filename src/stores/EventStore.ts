@@ -8,7 +8,9 @@ interface IEvent {
   place?: string;
   location?: string;
   category?: string;
-  image: string | null;
+  description?: string;
+  coords?: [number, number];
+  image?: string | null;
 }
 
 class EventStore {

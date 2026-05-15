@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Group, SimpleCell, Switch, Avatar, Chip } from "@vkontakte/vkui";
+import {
+  Group,
+  SimpleCell,
+  Switch,
+  Avatar,
+  Chip,
+  ModalRoot,
+  ModalPage,
+  ModalPageHeader,
+  ModalDismissButton,
+} from "@vkontakte/vkui";
 import { Icon28CancelOutline, Icon20PlaceOutline, Icon24AddOutline } from "@vkontakte/icons";
 import styled from "@emotion/styled";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -134,11 +144,62 @@ const BrightSwitchScope = styled.div`
   }
 `;
 
+const AllInterestsGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+`;
+
+const InterestChip = styled.button<{ $selected?: boolean }>`
+  padding: 8px 16px;
+  border: 1px solid ${(props) => (props.$selected ? "#2688eb" : "#d7d8d9")};
+  border-radius: 20px;
+  background: ${(props) => (props.$selected ? "#2688eb" : "transparent")};
+  color: ${(props) => (props.$selected ? "#ffffff" : "#818c99")};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+`;
+
 const UserProfile = () => {
   const [notifications, setNotifications] = useState(true);
   const [invitations, setInvitations] = useState(true);
+  const [interests, setInterests] = useState([
+    "Спорт",
+    "Искусство",
+    "Технологии",
+    "Еда",
+    "Шопинг",
+    "Ресторан",
+  ]);
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [selectedNewInterests, setSelectedNewInterests] = useState<string[]>([]);
   const navigate = useNavigate();
-  const interests = ["Спорт", "Искусство", "Технологии", "Еда", "Шопинг", "Ресторан"];
+
+  const allAvailableInterests = [
+    "Спорт",
+    "Искусство",
+    "Путешествие",
+    "IT",
+    "Компьютерные игры",
+    "Технологии",
+    "Еда",
+    "Настольные игры",
+    "Наука",
+    "Музыка",
+    "Саморазвитие",
+    "ЗОЖ",
+    "Образование",
+    "Кино",
+    "Шопинг",
+    "Ресторан",
+  ];
 
   const handleCloseProfile = () => {
     navigate(-1);
@@ -147,6 +208,23 @@ const UserProfile = () => {
   const handleExit = () => {
     localStorage.removeItem("isAuth");
     navigate("/", { replace: true });
+  };
+
+  const handleShowInterests = () => {
+    setActiveModal("interests");
+    setSelectedNewInterests([]);
+  };
+
+  const toggleInterestSelection = (interest: string) => {
+    setSelectedNewInterests((prev) =>
+      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest],
+    );
+  };
+
+  const handleAddInterests = () => {
+    setInterests((prev) => [...prev, ...selectedNewInterests.filter((i) => !prev.includes(i))]);
+    setActiveModal(null);
+    setSelectedNewInterests([]);
   };
 
   return (
@@ -165,7 +243,7 @@ const UserProfile = () => {
               size={96}
               src="https://avatars.mds.yandex.net/i?id=84fb949b57c566a07f81dd3a26a2d038_sr-7554713-images-thumbs&n=13"
             />
-            <UserName>Игнатьева Василиса</UserName>
+            <UserName>Игнатьева Алена</UserName>
             <LocationWrapper>
               <Icon20PlaceOutline width={16} height={16} />
               Санкт-Петербург
@@ -183,10 +261,59 @@ const UserProfile = () => {
               data-type="add"
               removable={false}
               after={<Icon24AddOutline width={16} height={16} />}
+              onClick={handleShowInterests}
             >
               Добавить
             </StyledChip>
           </ChipsContainer>
+
+          <ModalRoot activeModal={activeModal} onClose={() => setActiveModal(null)}>
+            <ModalPage id="interests" onClose={() => setActiveModal(null)}>
+              <ModalPageHeader before={<ModalDismissButton onClick={() => setActiveModal(null)} />}>
+                Выбрать интересы
+              </ModalPageHeader>
+              <div style={{ padding: "16px" }}>
+                <AllInterestsGrid>
+                  {allAvailableInterests.map((interest) => (
+                    <InterestChip
+                      key={interest}
+                      $selected={selectedNewInterests.includes(interest)}
+                      onClick={() => toggleInterestSelection(interest)}
+                    >
+                      {interest}
+                    </InterestChip>
+                  ))}
+                </AllInterestsGrid>
+                {/* <Chip
+                  onClick={handleAddInterests}
+                  style={{
+                    width: "calc(100% - 32px)",
+                    margin: "16px",
+                    background: "#2688eb",
+                  }}
+                >
+                  Добавить ({selectedNewInterests.length})
+                </Chip> */}
+                <Chip
+                  onClick={handleAddInterests}
+                  style={{
+                    width: "calc(100% - 32px)",
+                    margin: "16px",
+                    background: "#2688eb",
+                    display: "flex",
+                    justifyContent: "center",
+                    position: "relative",
+                  }}
+                >
+                  <span
+                    style={{ flexGrow: 1, textAlign: "center", paddingLeft: "24px", color: "#fff" }}
+                  >
+                    Добавить ({selectedNewInterests.length})
+                  </span>
+                </Chip>
+              </div>
+            </ModalPage>
+          </ModalRoot>
 
           <BrightSwitchScope>
             <SimpleCell

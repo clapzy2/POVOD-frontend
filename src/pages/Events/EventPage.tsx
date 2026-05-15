@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { eventStore } from "../../stores/EventStore";
 import {
-  AppRoot,
-  SplitLayout,
-  SplitCol,
-  View,
   Panel,
   PanelHeader,
   PanelHeaderBack,
@@ -24,7 +22,50 @@ import {
 } from "@vkontakte/icons";
 import { EventMap } from "../../components/EventMap/EventMap";
 import "@vkontakte/vkui/dist/vkui.css";
+import styled from "@emotion/styled";
+import volleyballImg from "../../assets/images/volleyball.png";
+import karaokeImg from "../../assets/images/karaoke.png";
+import picnicImg from "../../assets/images/picnic.jpg";
+
+const EventImage = styled.img`
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  margin-bottom: 16px;
+`;
 const INITIAL_EVENTS = [
+  {
+    id: 1,
+    title: "Пляжный волейбол",
+    description: "Играем на песчаном корте, делимся командой и после — лёгкий фуршет на пляже.",
+    date: "27/06/26",
+    time: "18:00",
+    place: "Круглотский сад",
+    image: volleyballImg,
+    coords: [55.7558, 37.6173] as [number, number],
+  },
+  {
+    id: 2,
+    title: "Вечернее караоке",
+    description: "Пой вместе с друзьями любимые хиты и открой новые вокальные таланты.",
+    date: "28/06/26",
+    time: "22:00",
+    place: "Караоке-клуб 'Голос'",
+    image: karaokeImg,
+    coords: [55.7517, 37.6178] as [number, number],
+  },
+  {
+    id: 3,
+    title: "Пикник в лесу",
+    description: "Собираем пледы, еду и настольные игры для уютного отдыха на природе.",
+    date: "30/06/26",
+    time: "12:00",
+    place: "Лес за городом",
+    coords: [55.8, 37.5] as [number, number],
+    image: picnicImg,
+  },
   {
     id: 11,
     title: "Локальный Хакатон: Code & Chill",
@@ -55,15 +96,23 @@ const INITIAL_EVENTS = [
   },
 ];
 
-export function EventPage() {
+function EventPageComponent() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const eventData = INITIAL_EVENTS.find((e) => e.id === Number(id));
+  const allAvailableEvents = [
+    ...INITIAL_EVENTS,
+    ...eventStore.createdEvents,
+    ...eventStore.acceptedEvents,
+  ];
 
-  const [participants, setParticipants] = useState(12);
-  const [isJoined, setIsJoined] = useState(false);
+  const eventData = allAvailableEvents.find((e) => e.id === Number(id));
   const [loading, setLoading] = useState(false);
+  const isJoined = eventData
+    ? eventStore.acceptedEvents.some((item) => item.id === eventData.id) ||
+      eventStore.createdEvents.some((item) => item.id === eventData.id)
+    : false;
+  const participants = 12 + (isJoined ? 1 : 0);
 
   if (!eventData) {
     return (
@@ -86,17 +135,16 @@ export function EventPage() {
   }
 
   const handleAction = () => {
-    if (isJoined) return;
+    if (!eventData || isJoined) return;
     setLoading(true);
     setTimeout(() => {
-      setParticipants((prev) => prev + 1);
-      setIsJoined(true);
+      eventStore.addAcceptedEvent(eventData);
       setLoading(false);
     }, 800);
   };
 
   return (
-    <Panel id="event-detail">
+    <Panel id="event-detail" style={{ marginBottom: "40px" }}>
       <PanelHeader before={<PanelHeaderBack onClick={() => navigate(-1)} />}>Событие</PanelHeader>
 
       <Group>
@@ -107,6 +155,13 @@ export function EventPage() {
           <Text style={{ color: "var(--vkui--color_text_secondary)" }}>
             {eventData.description}
           </Text>
+          {eventData.image && (
+            <EventImage
+              src={typeof eventData.image === "string" ? eventData.image : ""}
+              alt={eventData.title}
+              style={{ marginTop: 16 }}
+            />
+          )}
         </div>
 
         <Spacing size={16} />
@@ -126,12 +181,14 @@ export function EventPage() {
         <Spacing size={12} />
         <Separator />
 
-        <div style={{ padding: "12px 16px" }}>
-          <Title level="3" weight="2" style={{ marginBottom: 12 }}>
-            Место на карте
-          </Title>
-          <EventMap coords={eventData.coords} />
-        </div>
+        {eventData.coords && (
+          <div style={{ padding: "12px 16px" }}>
+            <Title level="3" weight="2" style={{ marginBottom: 12 }}>
+              Место на карте
+            </Title>
+            <EventMap coords={eventData.coords} />
+          </div>
+        )}
 
         <div style={{ padding: "12px 16px" }}>
           <Button
@@ -149,3 +206,5 @@ export function EventPage() {
     </Panel>
   );
 }
+
+export const EventPage = observer(EventPageComponent);

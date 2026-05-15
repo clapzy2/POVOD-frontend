@@ -81,6 +81,19 @@ const EventTitle = styled.h3`
   color: #000;
 `;
 
+const StatusTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #d6f5e4;
+  color: #0f7a3c;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+`;
+
 const ActionButton = styled.button`
   background-color: #2d81e0;
   color: white;
@@ -92,6 +105,7 @@ const ActionButton = styled.button`
   font-weight: 400;
   margin-top: 8px;
   cursor: pointer;
+  margin-right: 5px;
 
   &:active {
     opacity: 0.8;
@@ -153,41 +167,41 @@ interface EventItem {
   location?: string;
   place?: string;
   category?: string;
-  image: string | null;
+  image?: string | null;
 }
 
-const MOCK_EVENTS: EventItem[] = [
-  {
-    id: 11,
-    title: "Локальный Хакатон: Code & Chill",
-    date: "19/06/26",
-    time: "16:00",
-    location: "IT-vibe",
-    category: "Хакатоны",
-    image:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=300&h=300&auto=format&fit=crop",
-  },
-  {
-    id: 12,
-    title: "Кофе на Восстания",
-    date: "23/06/26",
-    time: "08:30",
-    location: "Кофейня",
-    category: "Еда",
-    image:
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=300&h=300&auto=format&fit=crop",
-  },
-  {
-    id: 13,
-    title: 'Премьера "Человек-паук"',
-    date: "31/07/26",
-    time: "10:00",
-    location: "Кинотеатр",
-    category: "Кино",
-    image:
-      "https://avatars.mds.yandex.net/i?id=a5ef6ee128706c92cfdaa5e75a3afff0_l-4373855-images-thumbs&n=13",
-  },
-];
+// const MOCK_EVENTS: EventItem[] = [
+//   {
+//     id: 11,
+//     title: "Локальный Хакатон: Code & Chill",
+//     date: "19/06/26",
+//     time: "16:00",
+//     location: "IT-vibe",
+//     category: "Хакатоны",
+//     image:
+//       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=300&h=300&auto=format&fit=crop",
+//   },
+//   {
+//     id: 12,
+//     title: "Кофе на Восстания",
+//     date: "23/06/26",
+//     time: "08:30",
+//     location: "Кофейня",
+//     category: "Еда",
+//     image:
+//       "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=300&h=300&auto=format&fit=crop",
+//   },
+//   {
+//     id: 13,
+//     title: 'Премьера "Человек-паук"',
+//     date: "31/07/26",
+//     time: "10:00",
+//     location: "Кинотеатр",
+//     category: "Кино",
+//     image:
+//       "https://avatars.mds.yandex.net/i?id=a5ef6ee128706c92cfdaa5e75a3afff0_l-4373855-images-thumbs&n=13",
+//   },
+// ];
 
 function SignUpEventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -238,7 +252,7 @@ function SignUpEventsPage() {
   const selectedInterests = interestOptions.filter((opt) => opt.selected).map((opt) => opt.label);
 
   const allEvents: EventItem[] = [
-    ...MOCK_EVENTS,
+    // ...MOCK_EVENTS,
     ...eventStore.acceptedEvents,
     ...eventStore.createdEvents,
   ];
@@ -305,6 +319,9 @@ function SignUpEventsPage() {
             <EventImage src={event.image ?? ""} alt={event.title} />
             <EventInfo>
               <div>
+                {eventStore.acceptedEvents.some((accepted) => accepted.id === event.id) && (
+                  <StatusTag>Записан</StatusTag>
+                )}
                 <EventTitle>{event.title}</EventTitle>
                 <DateContainer>
                   <DetailRow>
