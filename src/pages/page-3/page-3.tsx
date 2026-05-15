@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import styled from "@emotion/styled";
 import {
   Icon28CalendarOutline,
@@ -16,6 +17,7 @@ import {
 import NavMenu from "../../components/NavMenu";
 import { OpenFilterIcon } from "../../icons/icons";
 import { useNavigate } from "react-router-dom";
+import { eventStore } from "../../stores/EventStore";
 
 const PageContainer = styled.div`
   background-color: transparent;
@@ -84,10 +86,10 @@ const ActionButton = styled.button`
   color: white;
   border: none;
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 400;
   margin-top: 8px;
   cursor: pointer;
 
@@ -101,8 +103,11 @@ const DetailRow = styled.div`
   align-items: center;
   gap: 6px;
   color: #818c99;
-  font-size: 13px;
-  margin-bottom: 4px;
+  font-size: 12px;
+  margin-bottom: 2px;
+  padding-top: 4px;
+  margin-left: 0px;
+  margin-right: 5px;
 `;
 
 const FiltersContainer = styled.div`
@@ -135,16 +140,32 @@ const FilterButton = styled.span`
   color: var(--vkui--color_text_contrast);
 `;
 
-const MOCK_EVENTS = [
+const DateContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+interface EventItem {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  location?: string;
+  place?: string;
+  category?: string;
+  image: string | null;
+}
+
+const MOCK_EVENTS: EventItem[] = [
   {
     id: 11,
-    title: "Настольные игры",
+    title: "Локальный Хакатон: Code & Chill",
     date: "19/06/26",
     time: "16:00",
-    location: "Эрудит",
-    category: "Настольные игры",
+    location: "IT-vibe",
+    category: "Хакатоны",
     image:
-      "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?q=80&w=300&h=300&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=300&h=300&auto=format&fit=crop",
   },
   {
     id: 12,
@@ -168,7 +189,7 @@ const MOCK_EVENTS = [
   },
 ];
 
-export default function SignUpEventsPage() {
+function SignUpEventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -216,9 +237,15 @@ export default function SignUpEventsPage() {
 
   const selectedInterests = interestOptions.filter((opt) => opt.selected).map((opt) => opt.label);
 
-  const filteredEvents = MOCK_EVENTS.filter((event) => {
+  const allEvents: EventItem[] = [
+    ...MOCK_EVENTS,
+    ...eventStore.acceptedEvents,
+    ...eventStore.createdEvents,
+  ];
+
+  const filteredEvents = allEvents.filter((event) => {
     const matchesCategory =
-      selectedInterests.length === 0 || selectedInterests.includes(event.category);
+      selectedInterests.length === 0 || selectedInterests.includes(event.category ?? "");
 
     const formattedFilterDate = filters.date
       ? filters.date.replace(/\./g, "/").replace("/202", "/2")
@@ -227,7 +254,9 @@ export default function SignUpEventsPage() {
 
     const matchesPlace =
       !filters.location ||
-      event.location.toLowerCase().includes(filters.location.toLowerCase().trim());
+      (event.location || event.place || "")
+        .toLowerCase()
+        .includes(filters.location.toLowerCase().trim());
 
     const matchesTime =
       (!filters.startTime || event.time >= filters.startTime) &&
@@ -273,19 +302,21 @@ export default function SignUpEventsPage() {
 
         {filteredEvents.map((event) => (
           <Card key={event.id}>
-            <EventImage src={event.image} alt={event.title} />
+            <EventImage src={event.image ?? ""} alt={event.title} />
             <EventInfo>
               <div>
                 <EventTitle>{event.title}</EventTitle>
-                <DetailRow>
-                  <Icon28CalendarOutline width={16} height={16} /> {event.date}
-                </DetailRow>
-                <DetailRow>
-                  <Icon28ClockOutline width={16} height={16} /> {event.time}
-                </DetailRow>
-                <DetailRow>
-                  <Icon28PlaceOutline width={16} height={16} /> {event.location}
-                </DetailRow>
+                <DateContainer>
+                  <DetailRow>
+                    <Icon28CalendarOutline width={16} height={16} /> {event.date}
+                  </DetailRow>
+                  <DetailRow>
+                    <Icon28ClockOutline width={16} height={16} /> {event.time}
+                  </DetailRow>
+                  <DetailRow>
+                    <Icon28PlaceOutline width={16} height={16} /> {event.location || event.place}
+                  </DetailRow>
+                </DateContainer>
               </div>
 
               <ActionButton onClick={() => navigate(`/page-1/${event.id}`)}>
@@ -331,3 +362,5 @@ export default function SignUpEventsPage() {
     </PageContainer>
   );
 }
+
+export default observer(SignUpEventsPage);

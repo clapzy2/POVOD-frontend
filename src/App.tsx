@@ -94,7 +94,9 @@ const App = observer(() => {
   const isChatPage = location.pathname === "/chats";
   const isSelectInterestPage = location.pathname === "/SelectInterestPage";
   const isProfilePage = location.pathname === "/Profile";
-  const showAppChrome = location.pathname !== "/" && !isSelectInterestPage && !isProfilePage;
+  const isNotificationsPage = location.pathname === "/notifications";
+  const showAppChrome =
+    location.pathname !== "/" && !isSelectInterestPage && !isProfilePage && !isNotificationsPage;
 
   useEffect(() => {
     rootStore.loadBackendStatus();

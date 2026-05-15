@@ -25,34 +25,30 @@ class RootStore {
     this.error = null;
 
     try {
-      const [pingResponse, healthResponse] = await Promise.all([
-        fetch(`${this.apiUrl}/api/ping`),
-        fetch(`${this.apiUrl}/health`),
-      ]);
-
-      if (!pingResponse.ok || !healthResponse.ok) {
-        throw new Error("Ошибка при получении данных от сервера");
-      }
-
-      const ping = await pingResponse.json();
-      const health = await healthResponse.json();
-
-      runInAction(() => {
-        this.pingData = ping;
-        this.healthData = health;
-      });
-
-      if (health.database_enabled) {
-        const dbResponse = await fetch(`${this.apiUrl}/api/db/time`);
-        const dbData = await dbResponse.json();
-        runInAction(() => {
-          this.dbTime = dbData;
-        });
-      } else {
-        runInAction(() => {
-          this.dbTime = null;
-        });
-      }
+      // const [pingResponse, healthResponse] = await Promise.all([
+      //   fetch(`${this.apiUrl}/api/ping`),
+      //   fetch(`${this.apiUrl}/health`),
+      // ]);
+      // if (!pingResponse.ok || !healthResponse.ok) {
+      //   throw new Error("Ошибка при получении данных от сервера");
+      // }
+      // const ping = await pingResponse.json();
+      // const health = await healthResponse.json();
+      // runInAction(() => {
+      //   this.pingData = ping;
+      //   this.healthData = health;
+      // });
+      // if (health.database_enabled) {
+      //   const dbResponse = await fetch(`${this.apiUrl}/api/db/time`);
+      //   const dbData = await dbResponse.json();
+      //   runInAction(() => {
+      //     this.dbTime = dbData;
+      //   });
+      // } else {
+      //   runInAction(() => {
+      //     this.dbTime = null;
+      //   });
+      // }
     } catch (err: any) {
       runInAction(() => {
         this.error = err.message;

@@ -320,8 +320,16 @@ export function FirstPage() {
               >
                 Не сейчас
               </Button>
-              <Button size="m" mode="primary" stretched>
-                Присоедениться
+              <Button
+                size="m"
+                mode="primary"
+                stretched
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/page-1/${event.id}`);
+                }}
+              >
+                Присоединиться
               </Button>
             </EventActions>
           </EventCard>

@@ -26,30 +26,31 @@ import { EventMap } from "../../components/EventMap/EventMap";
 import "@vkontakte/vkui/dist/vkui.css";
 const INITIAL_EVENTS = [
   {
-    id: 1,
-    title: "Пляжный волейбол",
-    description: "Активный отдых на свежем воздухе. Уровень любой!",
+    id: 11,
+    title: "Локальный Хакатон: Code & Chill",
+    description:
+      "Собираем команды, брейнштормим крутые фичи и пилим MVP за выходные. С нас — пицца, мерч и мощный нетворкинг!",
     date: "27/06/26",
     time: "18:00",
-    place: "Круглосветский сад",
+    place: "IT-vibe",
     coords: [55.7558, 37.6173] as [number, number],
   },
   {
-    id: 2,
-    title: "Вечернее караоке",
-    description: "Поем любимые хиты в уютной компании.",
+    id: 12,
+    title: "Утренний кофе и коворкинг",
+    description: "Обсуждаем планы, делимся идеями и заряжаемся бодростью за чашкой отличного кофе.",
     date: "28/06/26",
     time: "10:00",
-    place: "Караоке-клуб 'Голос'",
+    place: "Кофейня 'Surf Coffee'",
     coords: [55.7517, 37.6178] as [number, number],
   },
   {
-    id: 3,
-    title: "Пикник в лесу",
-    description: "Берем пледы и хорошее настроение.",
+    id: 13,
+    title: "Киномарафон под открытым небом",
+    description: "Закупаемся попкорном и смотрим новинки кино на большом экране.",
     date: "30/06/26",
     time: "12:00",
-    place: "Лес за городом",
+    place: "Almaz Cinema Park",
     coords: [55.8, 37.5] as [number, number],
   },
 ];
@@ -60,7 +61,7 @@ export function EventPage() {
 
   const eventData = INITIAL_EVENTS.find((e) => e.id === Number(id));
 
-  const [participants, setParticipants] = useState(124);
+  const [participants, setParticipants] = useState(12);
   const [isJoined, setIsJoined] = useState(false);
   const [loading, setLoading] = useState(false);
 

@@ -5,12 +5,16 @@ interface IEvent {
   title: string;
   date: string;
   time: string;
-  place: string;
+  place?: string;
+  location?: string;
+  category?: string;
   image: string | null;
 }
 
 class EventStore {
   events: IEvent[] = [];
+  acceptedEvents: IEvent[] = [];
+  createdEvents: IEvent[] = [];
   isLoading: boolean = false;
   error: string | null = null;
 
@@ -44,8 +48,18 @@ class EventStore {
     return this.events.filter(
       (event) =>
         event.title.toLowerCase().includes(query.toLowerCase()) ||
-        event.place.toLowerCase().includes(query.toLowerCase()),
+        (event.place || event.location || "").toLowerCase().includes(query.toLowerCase()),
     );
+  }
+
+  addAcceptedEvent(event: IEvent) {
+    if (!this.acceptedEvents.some((item) => item.id === event.id)) {
+      this.acceptedEvents.push(event);
+    }
+  }
+
+  addCreatedEvent(event: IEvent) {
+    this.createdEvents.push(event);
   }
 }
 

@@ -21,6 +21,7 @@ const LeftSection = styled.div`
   align-items: center;
   gap: 12px;
   flex-grow: 1;
+  margin-left: 14px;
 `;
 
 const Avatar = styled.div`
@@ -37,6 +38,7 @@ const PageTitle = styled.h1`
   font-size: 20px;
   font-weight: 700;
   margin: 0;
+
   color: var(--vkui--color_text_primary);
 `;
 
@@ -71,6 +73,10 @@ export function THeader() {
       ? "Мои поводы"
       : "Главная";
 
+  const handleBellClick = () => {
+    navigate("/notifications");
+  };
+
   return (
     <Header $mode={theme}>
       <PageHeader>
@@ -79,7 +85,7 @@ export function THeader() {
           <PageTitle>{displayTitle}</PageTitle>
         </LeftSection>
 
-        <IconButton $mode={theme} type="button" aria-label="Уведомления">
+        <IconButton $mode={theme} type="button" aria-label="Уведомления" onClick={handleBellClick}>
           <BellIcon />
         </IconButton>
       </PageHeader>

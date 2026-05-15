@@ -60,6 +60,7 @@ import { EventPage } from "../pages/Events/EventPage";
 import SignUpEventsPage from "../pages/page-3/page-3";
 import ChatPage from "../pages/chat/ChatPage";
 import CreateEventForm from "../pages/CreateEvent/CreateEventForm";
+import { NotificationsPage } from "../components/Notification/NotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -77,6 +78,7 @@ export const router = createBrowserRouter([
       { path: "SelectInterestPage", element: <SelectInterestPage /> },
       { path: "Profile", element: <UserProfile /> },
       { path: "chats", element: <ChatPage /> },
+      { path: "notifications", element: <NotificationsPage /> },
       // { path: "chats", element: <ThirdPage /> },
     ],
   },
