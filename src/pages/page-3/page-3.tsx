@@ -139,9 +139,11 @@ const FilterWrapper = styled.div`
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  background: #838c98;
+  background: #f2f3f5;
+  border: 1px solid #2d81e0;
   border-radius: 10px;
   cursor: pointer;
+  color: #2d81e0;
   white-space: nowrap;
   &:active {
     opacity: 0.8;
@@ -151,9 +153,8 @@ const FilterWrapper = styled.div`
 const FilterButton = styled.span`
   font-size: 14px;
   font-weight: 400;
-  color: var(--vkui--color_text_contrast);
+  color: #2d81e0;
 `;
-
 const DateContainer = styled.div`
   display: flex;
   flex-direction: row;

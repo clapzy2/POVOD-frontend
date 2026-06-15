@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { eventStore } from "../../stores/EventStore";
+import { eventsAPI } from "../../services/api";
 import {
   Panel,
   PanelHeader,
@@ -134,13 +135,24 @@ function EventPageComponent() {
     );
   }
 
-  const handleAction = () => {
+  const handleJoin = async () => {
     if (!eventData || isJoined) return;
     setLoading(true);
-    setTimeout(() => {
-      eventStore.addAcceptedEvent(eventData);
-      setLoading(false);
-    }, 800);
+    try {
+      await eventsAPI.join(String(eventData.id));
+    } catch (err) {}
+    eventStore.addAcceptedEvent(eventData);
+    setLoading(false);
+  };
+
+  const handleLeave = async () => {
+    if (!eventData || !isJoined) return;
+    setLoading(true);
+    try {
+      await eventsAPI.leave(String(eventData.id));
+    } catch (err) {}
+    eventStore.removeAcceptedEvent(eventData);
+    setLoading(false);
   };
 
   return (
@@ -191,16 +203,27 @@ function EventPageComponent() {
         )}
 
         <div style={{ padding: "12px 16px" }}>
-          <Button
-            size="l"
-            stretched
-            loading={loading}
-            onClick={handleAction}
-            mode={isJoined ? "outline" : "primary"}
-            before={isJoined ? <Icon24Done /> : null}
-          >
-            {isJoined ? "Вы записаны" : "Записаться"}
-          </Button>
+          {!isJoined ? (
+            <Button size="l" stretched loading={loading} onClick={handleJoin} mode="primary">
+              Записаться
+            </Button>
+          ) : (
+            <>
+              <Button size="l" stretched mode="secondary" before={<Icon24Done />} disabled>
+                Вы записаны
+              </Button>
+              <div style={{ height: 8 }} />
+              <Button
+                size="l"
+                stretched
+                loading={loading}
+                onClick={handleLeave}
+                style={{ background: "#e05b5b", color: "white" }}
+              >
+                Отписаться
+              </Button>
+            </>
+          )}
         </div>
       </Group>
     </Panel>

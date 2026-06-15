@@ -63,6 +63,10 @@ class EventStore {
   addCreatedEvent(event: IEvent) {
     this.createdEvents.push(event);
   }
+
+  removeAcceptedEvent(event: IEvent) {
+    this.acceptedEvents = this.acceptedEvents.filter((item) => item.id !== event.id);
+  }
 }
 
 export const eventStore = new EventStore();

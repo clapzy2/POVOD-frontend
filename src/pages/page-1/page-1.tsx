@@ -74,7 +74,7 @@ const FilterWrapper = styled.div`
   gap: 4px;
   padding: 8px 12px;
   background: #f2f3f5;
-  border: 2px solid #2d81e0;
+  border: 1px solid #2d81e0;
   border-radius: 10px;
   cursor: pointer;
   color: #2d81e0;
