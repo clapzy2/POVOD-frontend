@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import NavMenu from "./components/NavMenu";
 import { THeader } from "./components/Header/Header";
 import { observer } from "mobx-react-lite";
 import { rootStore } from "./stores/rootStore";
+import { sessionStore } from "./stores/sessionStore";
 import { useEffect } from "react";
 import {
   ConfigProvider,
@@ -14,22 +15,11 @@ import {
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 
-// const AppContainer = styled.div`
-//   min-height: 100vh;
-//   display: flex;
-//   flex-direction: column;
-//   background: var(--bg-color);
-//   color: var(--text-color);
-//   padding-bottom: 20px;
-//   transition:
-//     background 0.3s ease,
-//     color 0.3s ease;
-// `;
 const AppContainer = styled.div<{ isWhiteBg?: boolean }>`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Добавляем проверку пропса и !important, чтобы перебить index.css */
+  /* Проверка пропса + !important, чтобы перебить index.css */
   background: ${(props) => (props.isWhiteBg ? "#ffffff" : "var(--bg-color)")} !important;
   color: var(--text-color);
   padding-bottom: 20px;
@@ -51,44 +41,6 @@ const MainContent = styled.div`
   }
 `;
 
-// const App = observer(() => {
-//   useEffect(() => {
-//     rootStore.loadBackendStatus();
-//   }, []);
-
-//   return (
-//     <ConfigProvider>
-//       <AdaptivityProvider>
-//         <AppRoot>
-//           <AppContainer>
-//             <TestHeader />
-
-//             {rootStore.error && (
-//               <div style={{ color: "red", padding: "0 24px" }}>{rootStore.error}</div>
-//             )}
-
-//             <MainContent>
-//               <NavMenu />
-
-//               {/* 2. Контентная часть под меню */}
-//               <SplitLayout style={{ justifyContent: "center" }}>
-//                 <SplitCol maxWidth="100%">
-//                   <main style={{ flex: 1 }}>
-//                     <Outlet />
-//                   </main>
-//                 </SplitCol>
-//                 {/* <UserInfo /> */}
-//               </SplitLayout>
-//             </MainContent>
-//           </AppContainer>
-//         </AppRoot>
-//       </AdaptivityProvider>
-//     </ConfigProvider>
-//   );
-// });
-
-import { useLocation } from "react-router-dom";
-
 const App = observer(() => {
   const location = useLocation();
   const isChatPage = location.pathname === "/chats";
@@ -100,6 +52,7 @@ const App = observer(() => {
 
   useEffect(() => {
     rootStore.loadBackendStatus();
+    sessionStore.init();
   }, []);
 
   const chatSceneTokens = {
@@ -135,4 +88,5 @@ const App = observer(() => {
     </ConfigProvider>
   );
 });
+
 export default App;

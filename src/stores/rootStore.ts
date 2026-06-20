@@ -1,60 +1,42 @@
 import { makeAutoObservable, runInAction } from "mobx";
+import { healthAPI } from "../services/api";
 
 interface BackendStatus {
-  service: string;
+  service?: string;
   status: string;
-  database_enabled: boolean;
+  database_enabled?: boolean;
 }
 
 class RootStore {
-  pingData: any = null;
+  pingData: { message?: string } | null = null;
   healthData: BackendStatus | null = null;
-  dbTime: any = null;
   error: string | null = null;
-  isLoading: boolean = false;
-
-  private apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-  // private apiUrl = "https://team-5.hack.kam-dev.ru";
+  isLoading = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
+  /**
+   * Проверяет доступность бэкенда (ping + health).
+   * Некритично: при недоступности сервера не показываем пользователю ошибку,
+   * только логируем — фронт продолжает работать.
+   */
   async loadBackendStatus() {
-    this.isLoading = true;
-    this.error = null;
-
+    runInAction(() => {
+      this.isLoading = true;
+    });
     try {
-      // const [pingResponse, healthResponse] = await Promise.all([
-      //   fetch(`${this.apiUrl}/api/ping`),
-      //   fetch(`${this.apiUrl}/health`),
-      // ]);
-      // if (!pingResponse.ok || !healthResponse.ok) {
-      //   throw new Error("Ошибка при получении данных от сервера");
-      // }
-      // const ping = await pingResponse.json();
-      // const health = await healthResponse.json();
-      // runInAction(() => {
-      //   this.pingData = ping;
-      //   this.healthData = health;
-      // });
-      // if (health.database_enabled) {
-      //   const dbResponse = await fetch(`${this.apiUrl}/api/db/time`);
-      //   const dbData = await dbResponse.json();
-      //   runInAction(() => {
-      //     this.dbTime = dbData;
-      //   });
-      // } else {
-      //   runInAction(() => {
-      //     this.dbTime = null;
-      //   });
-      // }
-    } catch (err: any) {
+      const [ping, health] = await Promise.all([healthAPI.ping(), healthAPI.health()]);
       runInAction(() => {
-        this.error = err.message;
+        this.pingData = ping.data ?? null;
+        this.healthData = (health.data as BackendStatus) ?? null;
+        this.isLoading = false;
       });
-    } finally {
+    } catch (err) {
+      console.warn("[rootStore] backend недоступен:", err);
       runInAction(() => {
+        this.healthData = null;
         this.isLoading = false;
       });
     }

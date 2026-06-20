@@ -9,6 +9,7 @@ import {
 } from "@vkontakte/icons";
 import { useNavigate } from "react-router-dom";
 import { eventStore } from "../../stores/EventStore";
+import { sessionStore } from "../../stores/sessionStore";
 
 const FormContainer = styled.div`
   min-height: 100vh;
@@ -326,6 +327,7 @@ export default function CreateEventForm() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeType, setActiveType] = useState<"exact" | "idea">("idea");
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -388,20 +390,32 @@ export default function CreateEventForm() {
     setFormData((prev) => ({ ...prev, format }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return;
     if (!formData.title || !formData.date) return;
-    const newEvent = {
-      id: Date.now(),
+    setSubmitting(true);
+
+    // <input type="date"> отдаёт "YYYY-MM-DD" -> приводим к формату приложения "DD/MM/YY"
+    const [yyyy, mm, dd] = formData.date.split("-");
+    const dateStr = yyyy && mm && dd ? `${dd}/${mm}/${yyyy.slice(2)}` : formData.date;
+
+    const created = await eventStore.createEvent({
       title: formData.title,
-      date: formData.date.split("-").reverse().join(".").slice(0, 8),
+      description: formData.description,
+      date: dateStr,
       time: formData.timeFrom,
       location: formData.location,
       category: formData.categories[0] || "Общее",
-      image: formData.photoData || "https://c.stocksy.com/a/6QWO00/z9/5844498.jpg",
-    };
+      image:
+        formData.photoData ||
+        "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
+      format: formData.format,
+      author: sessionStore.user.name,
+      authorId: sessionStore.user.id,
+    });
 
-    eventStore.addCreatedEvent(newEvent);
-    navigate("/events");
+    setSubmitting(false);
+    if (created) navigate("/events");
   };
 
   return (

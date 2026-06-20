@@ -1,4 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://team-5.hack.kam-dev.ru/";
+// Базовый URL API. Эндпоинты дописываются без ведущего слеша (`${BASE}api/Events`),
+// поэтому гарантируем завершающий слеш у базы.
+const RAW_BASE_URL = import.meta.env.VITE_API_URL || "https://team-5.hack.kam-dev.ru/";
+const API_BASE_URL = RAW_BASE_URL.endsWith("/") ? RAW_BASE_URL : `${RAW_BASE_URL}/`;
 
 interface ApiResponse<T> {
   data?: T;
@@ -13,10 +16,16 @@ export interface Event {
   date: string;
   time: string;
   location: string;
+  category?: string;
   author: string;
+  authorId?: string;
   participants: number;
+  participantIds?: string[];
   image?: string;
   tags?: string[];
+  coords?: [number, number];
+  format?: "public" | "private";
+  createdAt?: string;
 }
 
 export interface User {
@@ -150,7 +159,17 @@ export const healthAPI = {
   health: () => fetchApi<{ status: string }>("health"),
 };
 
+export const authAPI = {
+  // Авторизация VK Mini App: бэкенд проверяет подпись launch-параметров и upsert-ит пользователя
+  vk: (launchParams: string, profile?: { name?: string; avatar?: string }) =>
+    fetchApi<User>("api/Auth/vk", {
+      method: "POST",
+      body: JSON.stringify({ launchParams, profile }),
+    }),
+};
+
 export const api = {
+  auth: authAPI,
   events: eventsAPI,
   users: usersAPI,
   comments: commentsAPI,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Group,
   SimpleCell,
@@ -14,6 +14,8 @@ import { Icon28CancelOutline, Icon20PlaceOutline, Icon24AddOutline } from "@vkon
 import styled from "@emotion/styled";
 import "@vkontakte/vkui/dist/vkui.css";
 import { useNavigate } from "react-router-dom";
+import { usersAPI, type User } from "../../services/api";
+import { sessionStore } from "../../stores/sessionStore";
 
 const PageRoot = styled.div`
   display: flex;
@@ -182,6 +184,21 @@ const UserProfile = () => {
   const [selectedNewInterests, setSelectedNewInterests] = useState<string[]>([]);
   const navigate = useNavigate();
 
+  const [user, setUser] = useState<User | null>(null);
+  const [friends, setFriends] = useState<User[]>([]);
+
+  useEffect(() => {
+    usersAPI.getById(sessionStore.user.id).then((res) => {
+      if (res.data) {
+        setUser(res.data);
+        if (res.data.interests?.length) setInterests(res.data.interests);
+      }
+    });
+    usersAPI.getFriends(sessionStore.user.id).then((res) => {
+      if (res.data) setFriends(res.data);
+    });
+  }, []);
+
   const allAvailableInterests = [
     "Спорт",
     "Искусство",
@@ -239,11 +256,8 @@ const UserProfile = () => {
 
         <Group mode="plain" padding="s">
           <ProfileWrapper>
-            <Avatar
-              size={96}
-              src="https://avatars.mds.yandex.net/i?id=84fb949b57c566a07f81dd3a26a2d038_sr-7554713-images-thumbs&n=13"
-            />
-            <UserName>Игнатьева Алена</UserName>
+            <Avatar size={96} src={user?.avatar ?? sessionStore.user.avatar} />
+            <UserName>{user?.name ?? sessionStore.user.name}</UserName>
             <LocationWrapper>
               <Icon20PlaceOutline width={16} height={16} />
               Санкт-Петербург
@@ -314,6 +328,38 @@ const UserProfile = () => {
               </div>
             </ModalPage>
           </ModalRoot>
+
+          <InterestsHeading>Друзья ({friends.length})</InterestsHeading>
+          <ChipsContainer style={{ gap: 16 }}>
+            {friends.map((f) => (
+              <div
+                key={f.id}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 6,
+                  width: 72,
+                }}
+              >
+                <Avatar size={56} src={f.avatar} initials={f.name?.[0]} />
+                <span
+                  style={{
+                    fontSize: 12,
+                    textAlign: "center",
+                    color: "var(--vkui--color_text_primary)",
+                  }}
+                >
+                  {f.name}
+                </span>
+              </div>
+            ))}
+            {friends.length === 0 && (
+              <span style={{ color: "var(--vkui--color_text_secondary)", fontSize: 14 }}>
+                Пока нет друзей
+              </span>
+            )}
+          </ChipsContainer>
 
           <BrightSwitchScope>
             <SimpleCell
