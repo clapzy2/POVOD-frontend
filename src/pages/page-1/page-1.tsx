@@ -67,26 +67,32 @@ const FiltersContainer = styled.div`
   }
 `;
 
-const FilterWrapper = styled.div`
+const FilterWrapper = styled.div<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  background: #f2f3f5;
+  background: ${(props) => (props.$active ? "#2d81e0" : "#f2f3f5")};
   border: 1px solid #2d81e0;
   border-radius: 10px;
   cursor: pointer;
-  color: #2d81e0;
+  color: ${(props) => (props.$active ? "#ffffff" : "#2d81e0")};
   white-space: nowrap;
   &:active {
     opacity: 0.8;
   }
 `;
 
+const ResetChip = styled(FilterWrapper)`
+  background: #ffffff;
+  border-color: #e05b5b;
+  color: #e05b5b;
+`;
+
 const FilterButton = styled.span`
   font-size: 14px;
   font-weight: 400;
-  color: #2d81e0;
+  color: inherit;
 `;
 
 const EventCard = styled.div`
@@ -143,6 +149,12 @@ const StateBox = styled.div`
   text-align: center;
 `;
 
+const ResultCount = styled.div`
+  font-size: 13px;
+  color: var(--vkui--color_text_secondary);
+  padding: 0 2px 4px;
+`;
+
 const INTEREST_OPTIONS: FilterOption[] = [
   { id: "1", label: "Спорт", selected: false },
   { id: "2", label: "Искусство", selected: false },
@@ -162,6 +174,15 @@ const INTEREST_OPTIONS: FilterOption[] = [
   { id: "16", label: "Музей", selected: false },
   { id: "17", label: "Отдых", selected: false },
 ];
+
+/** "DD/MM/YY" | "DD.MM.YYYY" -> timestamp (для сравнения дат). */
+function parseEventDate(date: string): number {
+  const m = date.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/);
+  if (!m) return 0;
+  let year = Number(m[3]);
+  if (year < 100) year += 2000;
+  return new Date(year, Number(m[2]) - 1, Number(m[1])).getTime();
+}
 
 function FirstPageComponent() {
   const navigate = useNavigate();
@@ -195,20 +216,42 @@ function FirstPageComponent() {
 
   const selectedInterests = interestOptions.filter((opt) => opt.selected).map((opt) => opt.label);
 
+  const query = searchQuery.toLowerCase().trim();
+  const fromDate = filters.date ? parseEventDate(filters.date) : 0;
+
   const filteredEvents = eventStore.events.filter((event) => {
     if (hiddenIds.includes(event.id)) return false;
 
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+    // Поиск по названию, описанию, месту, категории и тегам
+    const haystack = [
+      event.title,
+      event.description,
+      event.place,
+      event.location,
+      event.category,
+      ...(event.tags ?? []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    const matchesSearch = !query || haystack.includes(query);
 
+    // Интересы сверяем с категорией И тегами события
+    const eventLabels = [event.category, ...(event.tags ?? [])]
+      .filter(Boolean)
+      .map((s) => (s as string).toLowerCase());
     const matchesCategory =
-      selectedInterests.length === 0 || selectedInterests.includes(event.category ?? "");
+      selectedInterests.length === 0 ||
+      selectedInterests.some((i) => eventLabels.includes(i.toLowerCase()));
 
-    const matchesDate =
-      !filters.date || event.date === filters.date.replace(/\./g, "/").replace("/20", "/");
+    // Дата: события в выбранный день или позже
+    const matchesDate = !fromDate || parseEventDate(event.date) >= fromDate;
 
     const matchesPlace =
       !filters.location ||
-      (event.place ?? "").toLowerCase().trim().includes(filters.location.toLowerCase().trim());
+      (event.place ?? event.location ?? "")
+        .toLowerCase()
+        .includes(filters.location.toLowerCase().trim());
 
     const matchesTime =
       !filters.startTime ||
@@ -219,6 +262,20 @@ function FirstPageComponent() {
   });
 
   const handleHideEvent = (id: string) => setHiddenIds((prev) => [...prev, id]);
+
+  const timeActive = Boolean(filters.startTime && filters.endTime);
+  const hasActiveFilters =
+    Boolean(query) ||
+    selectedInterests.length > 0 ||
+    Boolean(filters.date) ||
+    Boolean(filters.location) ||
+    timeActive;
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setFilters({ date: "", location: "", startTime: "", endTime: "" });
+    setInterestOptions((prev) => prev.map((o) => ({ ...o, selected: false })));
+  };
 
   const isInitialLoading = eventStore.isLoading && eventStore.events.length === 0;
 
@@ -235,25 +292,38 @@ function FirstPageComponent() {
       </SearchContainer>
 
       <FiltersContainer>
-        <FilterWrapper onClick={() => setActiveModal("interests")}>
-          <FilterButton>Интересы</FilterButton>
+        <FilterWrapper
+          $active={selectedInterests.length > 0}
+          onClick={() => setActiveModal("interests")}
+        >
+          <FilterButton>
+            Интересы{selectedInterests.length > 0 ? ` (${selectedInterests.length})` : ""}
+          </FilterButton>
           <OpenFilterIcon />
         </FilterWrapper>
 
-        <FilterWrapper onClick={() => setActiveModal("date")}>
-          <FilterButton>Дата</FilterButton>
+        <FilterWrapper $active={Boolean(filters.date)} onClick={() => setActiveModal("date")}>
+          <FilterButton>{filters.date ? `Дата: ${filters.date}` : "Дата"}</FilterButton>
           <OpenFilterIcon />
         </FilterWrapper>
 
-        <FilterWrapper onClick={() => setActiveModal("time")}>
-          <FilterButton>Время</FilterButton>
+        <FilterWrapper $active={timeActive} onClick={() => setActiveModal("time")}>
+          <FilterButton>
+            {timeActive ? `${filters.startTime}–${filters.endTime}` : "Время"}
+          </FilterButton>
           <OpenFilterIcon />
         </FilterWrapper>
 
-        <FilterWrapper onClick={() => setActiveModal("place")}>
-          <FilterButton>Место</FilterButton>
+        <FilterWrapper $active={Boolean(filters.location)} onClick={() => setActiveModal("place")}>
+          <FilterButton>{filters.location ? `Место: ${filters.location}` : "Место"}</FilterButton>
           <OpenFilterIcon />
         </FilterWrapper>
+
+        {hasActiveFilters && (
+          <ResetChip onClick={resetFilters}>
+            <FilterButton>Сбросить ✕</FilterButton>
+          </ResetChip>
+        )}
       </FiltersContainer>
 
       {isInitialLoading && (
@@ -273,7 +343,11 @@ function FirstPageComponent() {
       )}
 
       {!isInitialLoading && !eventStore.error && (
-        <EventsList>
+        <>
+          {hasActiveFilters && (
+            <ResultCount>Найдено поводов: {filteredEvents.length}</ResultCount>
+          )}
+          <EventsList>
           {filteredEvents.map((event) => (
             <EventCard key={event.id} onClick={() => navigate(`/page-1/${event.id}`)}>
               <EventImage>
@@ -326,7 +400,8 @@ function FirstPageComponent() {
               <span>Поводы не найдены</span>
             </StateBox>
           )}
-        </EventsList>
+          </EventsList>
+        </>
       )}
 
       <InterestsFilter
