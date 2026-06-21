@@ -6,15 +6,13 @@ import { authAPI, type User } from "../services/api";
 /**
  * Сессия текущего пользователя.
  *
- * Внутри ВКонтакте:
- *   1. читаем launch-параметры из URL (vk_user_id, sign, ...);
- *   2. берём профиль (имя/аватар) через VK Bridge;
- *   3. отправляем launch-параметры на бэкенд (/api/Auth/vk) — там проверяется подпись
- *      и пользователь создаётся/находится (upsert);
- *   4. используем вернувшегося пользователя как текущего.
+ * Главное правило: ВНУТРИ ВК имя/аватар берём напрямую из VK Bridge
+ * (VKWebAppGetUserInfo) — это надёжно работает в среде ВК и не зависит от
+ * бэкенд-проверки подписи. Бэкенд-авторизация (проверка sign + upsert)
+ * выполняется вторым шагом ради server-side identity; если она по какой-то
+ * причине не прошла — на отображение это не влияет.
  *
- * Вне ВКонтакте (обычный браузер / локальная разработка) остаёмся на мок-пользователе
- * (CURRENT_USER), чтобы приложение работало в дев-режиме.
+ * Вне ВК (обычный браузер) GetUserInfo отклоняется → остаёмся на мок-пользователе.
  */
 class SessionStore {
   user: User = CURRENT_USER;
@@ -29,36 +27,50 @@ class SessionStore {
     if (this.initialized) return;
     this.initialized = true;
 
-    const launchParams = window.location.search.replace(/^\?/, "");
-    const isVKLaunch = /(?:^|&)vk_user_id=/.test(launchParams);
-    if (!isVKLaunch) {
-      // Вне среды ВК — используем мок-пользователя.
+    // 1) Профиль из VK Bridge. Успех = мы внутри ВКонтакте.
+    let info: Awaited<ReturnType<typeof bridge.send>> | null = null;
+    try {
+      info = await bridge.send("VKWebAppGetUserInfo");
+    } catch {
+      // Не внутри ВК — используем мок-пользователя.
       return;
     }
 
-    // Профиль (имя/аватар) из VK Bridge
-    let profile: { name?: string; avatar?: string } = {};
-    try {
-      const info = await bridge.send("VKWebAppGetUserInfo");
-      profile = {
-        name: [info.first_name, info.last_name].filter(Boolean).join(" "),
-        avatar: info.photo_200 || info.photo_100,
-      };
-    } catch {
-      /* профиль недоступен — не критично */
-    }
+    const vkInfo = info as {
+      id: number;
+      first_name?: string;
+      last_name?: string;
+      photo_200?: string;
+      photo_100?: string;
+    };
+    const name = [vkInfo.first_name, vkInfo.last_name].filter(Boolean).join(" ");
+    const avatar = vkInfo.photo_200 || vkInfo.photo_100;
 
-    // Авторизация на бэкенде: проверка подписи launch-параметров + upsert пользователя
-    try {
-      const res = await authAPI.vk(launchParams, profile);
-      if (res.data) {
-        runInAction(() => {
-          this.user = res.data as User;
-          this.isVK = true;
-        });
+    // Сразу показываем реального пользователя (имя/аватар из ВК)
+    runInAction(() => {
+      this.user = {
+        id: `vk_${vkInfo.id}`,
+        name: name || this.user.name,
+        email: this.user.email,
+        avatar: avatar || this.user.avatar,
+      };
+      this.isVK = true;
+    });
+
+    // 2) Бэкенд-авторизация: проверка подписи launch-параметров + upsert.
+    //    Делается ради server-side identity; на отображение не влияет.
+    const launchParams = window.location.search.replace(/^\?/, "");
+    if (/(?:^|&)vk_user_id=/.test(launchParams)) {
+      try {
+        const res = await authAPI.vk(launchParams, { name, avatar });
+        if (res.data) {
+          runInAction(() => {
+            this.user = res.data as User;
+          });
+        }
+      } catch {
+        /* бэкенд-проверка не прошла — остаёмся на профиле из VK Bridge */
       }
-    } catch {
-      /* бэкенд недоступен — остаёмся на мок-пользователе */
     }
   };
 }
