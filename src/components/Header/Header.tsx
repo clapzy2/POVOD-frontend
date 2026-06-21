@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
+import { observer } from "mobx-react-lite";
 import { useTheme } from "../../context/ThemeContext";
 import { BellIcon } from "../../icons/icons";
 import { useNavigate, useLocation } from "react-router-dom";
+import { sessionStore } from "../../stores/sessionStore";
 
 const Header = styled.header<{ $mode: "light" | "dark" }>`
   display: flex;
@@ -24,13 +26,14 @@ const LeftSection = styled.div`
   margin-left: 14px;
 `;
 
-const Avatar = styled.div`
+const Avatar = styled.div<{ $avatar?: string }>`
   width: 36px;
   height: 36px;
   border-radius: 50%;
   background-color: #ceddf7;
-  background-image: url("https://avatars.mds.yandex.net/i?id=84fb949b57c566a07f81dd3a26a2d038_sr-7554713-images-thumbs&n=13");
+  background-image: url(${(props) => props.$avatar || ""});
   background-size: cover;
+  background-position: center;
   cursor: pointer;
 `;
 
@@ -58,7 +61,7 @@ const IconButton = styled.button<{ $mode: "light" | "dark" }>`
   }
 `;
 
-export function THeader() {
+export const THeader = observer(function THeader() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,7 +84,11 @@ export function THeader() {
     <Header $mode={theme}>
       <PageHeader>
         <LeftSection>
-          <Avatar onClick={handleAvatarClick} />
+          <Avatar
+            $avatar={sessionStore.user.avatar}
+            onClick={handleAvatarClick}
+            title={sessionStore.user.name}
+          />
           <PageTitle>{displayTitle}</PageTitle>
         </LeftSection>
 
@@ -91,4 +98,4 @@ export function THeader() {
       </PageHeader>
     </Header>
   );
-}
+});

@@ -2,7 +2,9 @@ import styled from "@emotion/styled";
 import { Button } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import { useEffect } from "react";
+import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router";
+import { sessionStore } from "../../stores/sessionStore";
 
 import photoTop from "../../assets/images/2.png";
 import photoBottom from "../../assets/images/1.png";
@@ -78,6 +80,29 @@ const PageDescription = styled.p`
   margin: 0 0 10px 0;
 `;
 
+const UserRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+`;
+
+const UserAvatar = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+`;
+
+const UserName = styled.span`
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+`;
+
 const ActionButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -115,7 +140,7 @@ const TopIcon = styled.img`
   object-fit: contain;
 `;
 
-export const MyLoginForm = () => {
+export const MyLoginForm = observer(() => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -128,6 +153,10 @@ export const MyLoginForm = () => {
     localStorage.setItem("isAuth", "true");
     navigate("/SelectInterestPage", { replace: true });
   };
+
+  // Внутри ВК показываем реального пользователя и приветственную кнопку
+  const isVK = sessionStore.isVK;
+  const firstName = sessionStore.user.name.split(" ")[0];
 
   return (
     <PageContainer>
@@ -143,9 +172,16 @@ export const MyLoginForm = () => {
         <PageTitle>Создать повод</PageTitle>
         <PageDescription>Без долгих переписок. Пригласи одним кликом</PageDescription>
 
+        {isVK && (
+          <UserRow>
+            {sessionStore.user.avatar && <UserAvatar src={sessionStore.user.avatar} alt="" />}
+            <UserName>{sessionStore.user.name}</UserName>
+          </UserRow>
+        )}
+
         <ActionButtonWrapper>
           <EnterButton size="l" stretched onClick={handleLogin}>
-            Войти через VK ID
+            {isVK ? `Продолжить как ${firstName}` : "Войти через VK ID"}
           </EnterButton>
         </ActionButtonWrapper>
       </TextCard>
@@ -156,4 +192,4 @@ export const MyLoginForm = () => {
       </FooterText>
     </PageContainer>
   );
-};
+});
