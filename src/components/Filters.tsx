@@ -97,6 +97,23 @@ export interface FilterOption {
   selected?: boolean;
 }
 
+/** Маска даты: только цифры, точки расставляются сами -> "ДД.ММ.ГГГГ". */
+function maskDate(raw: string): string {
+  const d = raw.replace(/\D/g, "").slice(0, 8);
+  let out = d.slice(0, 2);
+  if (d.length > 2) out += "." + d.slice(2, 4);
+  if (d.length > 4) out += "." + d.slice(4, 8);
+  return out;
+}
+
+/** Маска времени: только цифры, двоеточие само -> "ЧЧ:ММ". */
+function maskTime(raw: string): string {
+  const d = raw.replace(/\D/g, "").slice(0, 4);
+  let out = d.slice(0, 2);
+  if (d.length > 2) out += ":" + d.slice(2, 4);
+  return out;
+}
+
 interface BaseModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -144,12 +161,15 @@ export const DateFilter = ({ onSave, ...props }: any) => {
           <CalendarIcon />
         </IconInside>
         <StyledInput
-          //   $hasError={hasError}
           style={{ borderColor: hasError ? "red" : "#2d78df" }}
           type="text"
+          inputMode="numeric"
           placeholder="26.06.2026"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(maskDate(e.target.value));
+            if (hasError) setHasError(false);
+          }}
         />
       </InputWrapper>
       {hasError && (
@@ -209,22 +229,24 @@ export const TimeFilter = ({ onSave, ...props }: any) => {
       <InputWrapper>
         <TimeInput
           type="text"
+          inputMode="numeric"
           placeholder="16:00"
           value={startTime}
           style={{ borderColor: hasError ? "red" : "#2d78df" }}
           onChange={(e) => {
-            setStartTime(e.target.value);
+            setStartTime(maskTime(e.target.value));
             if (hasError) setHasError(false);
           }}
         />
         <span style={{ color: "#818c99" }}>—</span>
         <TimeInput
           type="text"
+          inputMode="numeric"
           placeholder="18:00"
           value={endTime}
           style={{ borderColor: hasError ? "red" : "#2d78df" }}
           onChange={(e) => {
-            setEndTime(e.target.value);
+            setEndTime(maskTime(e.target.value));
             if (hasError) setHasError(false);
           }}
         />

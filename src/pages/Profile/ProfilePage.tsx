@@ -224,6 +224,7 @@ const UserProfile = () => {
 
   const handleExit = () => {
     localStorage.removeItem("isAuth");
+    localStorage.removeItem("onboarded");
     navigate("/", { replace: true });
   };
 

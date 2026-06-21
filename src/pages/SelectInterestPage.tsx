@@ -121,12 +121,20 @@ export function SelectInterestPage() {
 
   const navigate = useNavigate();
 
+  // Онбординг показываем один раз — если уже пройден, сразу в ленту
+  useEffect(() => {
+    if (localStorage.getItem("onboarded") === "true") {
+      navigate("/page-1", { replace: true });
+    }
+  }, [navigate]);
+
   const toggleCategory = (id: string) => {
     setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const handleContinue = () => {
     localStorage.setItem("isAuth", "true");
+    localStorage.setItem("onboarded", "true");
     navigate("/page-1", { replace: true });
   };
 

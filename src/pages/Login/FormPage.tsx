@@ -144,7 +144,10 @@ export const MyLoginForm = observer(() => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem("isAuth") === "true") {
+    // Уже прошёл онбординг — сразу в ленту, минуя вход и выбор интересов
+    if (localStorage.getItem("onboarded") === "true") {
+      navigate("/page-1", { replace: true });
+    } else if (localStorage.getItem("isAuth") === "true") {
       navigate("/SelectInterestPage", { replace: true });
     }
   }, [navigate]);
