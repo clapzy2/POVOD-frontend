@@ -16,6 +16,7 @@ import { authAPI, type User } from "../services/api";
  */
 class SessionStore {
   user: User = CURRENT_USER;
+  city = "";
   isVK = false;
   initialized = false;
 
@@ -42,6 +43,7 @@ class SessionStore {
       last_name?: string;
       photo_200?: string;
       photo_100?: string;
+      city?: { title?: string };
     };
     const name = [vkInfo.first_name, vkInfo.last_name].filter(Boolean).join(" ");
     const avatar = vkInfo.photo_200 || vkInfo.photo_100;
@@ -54,6 +56,7 @@ class SessionStore {
         email: this.user.email,
         avatar: avatar || this.user.avatar,
       };
+      this.city = vkInfo.city?.title || "";
       this.isVK = true;
     });
 

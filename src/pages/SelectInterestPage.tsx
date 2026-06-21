@@ -3,6 +3,8 @@ import styled from "@emotion/styled";
 import { Button, Title, Text, Input } from "@vkontakte/vkui";
 import { Icon16Place } from "@vkontakte/icons";
 import { useNavigate } from "react-router-dom";
+import { sessionStore } from "../stores/sessionStore";
+import { setStoredInterests } from "../storage";
 import { useInterestForm } from "../components/ComponentShowcase/useInterestForm";
 
 const PageContainer = styled.div`
@@ -133,6 +135,8 @@ export function SelectInterestPage() {
   };
 
   const handleContinue = () => {
+    const labels = categories.filter((c) => selected.includes(c.id)).map((c) => c.label);
+    setStoredInterests(sessionStore.user.id, labels);
     localStorage.setItem("isAuth", "true");
     localStorage.setItem("onboarded", "true");
     navigate("/page-1", { replace: true });

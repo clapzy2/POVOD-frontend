@@ -14,8 +14,11 @@ import { Icon28CancelOutline, Icon20PlaceOutline, Icon24AddOutline } from "@vkon
 import styled from "@emotion/styled";
 import "@vkontakte/vkui/dist/vkui.css";
 import { useNavigate } from "react-router-dom";
-import { usersAPI, type User } from "../../services/api";
+import { usersAPI } from "../../services/api";
 import { sessionStore } from "../../stores/sessionStore";
+import { observer } from "mobx-react-lite";
+import bridge from "@vkontakte/vk-bridge";
+import { getStoredInterests, setStoredInterests } from "../../storage";
 
 const PageRoot = styled.div`
   display: flex;
@@ -172,32 +175,62 @@ const InterestChip = styled.button<{ $selected?: boolean }>`
 const UserProfile = () => {
   const [notifications, setNotifications] = useState(true);
   const [invitations, setInvitations] = useState(true);
-  const [interests, setInterests] = useState([
-    "Спорт",
-    "Искусство",
-    "Технологии",
-    "Еда",
-    "Шопинг",
-    "Ресторан",
-  ]);
+  const [interests, setInterests] = useState<string[]>([]);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [selectedNewInterests, setSelectedNewInterests] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [friends, setFriends] = useState<User[]>([]);
+  const [friends, setFriends] = useState<{ id: string; name: string; avatar?: string }[]>([]);
 
   useEffect(() => {
-    usersAPI.getById(sessionStore.user.id).then((res) => {
-      if (res.data) {
-        setUser(res.data);
-        if (res.data.interests?.length) setInterests(res.data.interests);
-      }
-    });
-    usersAPI.getFriends(sessionStore.user.id).then((res) => {
-      if (res.data) setFriends(res.data);
-    });
+    // Реальные интересы пользователя (его выбор) — из локального хранилища
+    setInterests(getStoredInterests(sessionStore.user.id));
+
+    // Друзья: внутри ВК — настоящие из ВКонтакте; в браузере — из бэкенда (демо)
+    if (sessionStore.isVK) {
+      loadVkFriends();
+    } else {
+      usersAPI.getFriends(sessionStore.user.id).then((res) => {
+        if (res.data) setFriends(res.data);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadVkFriends = async () => {
+    try {
+      const tokenRes = (await bridge.send("VKWebAppGetAuthToken", {
+        app_id: 54645823,
+        scope: "friends",
+      })) as { access_token?: string };
+      const token = tokenRes.access_token;
+      if (!token) return;
+      const apiRes = (await bridge.send("VKWebAppCallAPIMethod", {
+        method: "friends.get",
+        params: {
+          access_token: token,
+          v: "5.131",
+          fields: "photo_100",
+          count: 50,
+          order: "hints",
+        },
+      })) as {
+        response?: {
+          items?: Array<{ id: number; first_name?: string; last_name?: string; photo_100?: string }>;
+        };
+      };
+      const items = apiRes.response?.items ?? [];
+      setFriends(
+        items.map((f) => ({
+          id: String(f.id),
+          name: [f.first_name, f.last_name].filter(Boolean).join(" "),
+          avatar: f.photo_100,
+        })),
+      );
+    } catch {
+      /* пользователь отклонил доступ к друзьям или ошибка — оставляем пусто */
+    }
+  };
 
   const allAvailableInterests = [
     "Спорт",
@@ -240,7 +273,11 @@ const UserProfile = () => {
   };
 
   const handleAddInterests = () => {
-    setInterests((prev) => [...prev, ...selectedNewInterests.filter((i) => !prev.includes(i))]);
+    setInterests((prev) => {
+      const next = [...prev, ...selectedNewInterests.filter((i) => !prev.includes(i))];
+      setStoredInterests(sessionStore.user.id, next);
+      return next;
+    });
     setActiveModal(null);
     setSelectedNewInterests([]);
   };
@@ -257,12 +294,14 @@ const UserProfile = () => {
 
         <Group mode="plain" padding="s">
           <ProfileWrapper>
-            <Avatar size={96} src={user?.avatar ?? sessionStore.user.avatar} />
-            <UserName>{user?.name ?? sessionStore.user.name}</UserName>
-            <LocationWrapper>
-              <Icon20PlaceOutline width={16} height={16} />
-              Санкт-Петербург
-            </LocationWrapper>
+            <Avatar size={96} src={sessionStore.user.avatar} />
+            <UserName>{sessionStore.user.name}</UserName>
+            {sessionStore.city && (
+              <LocationWrapper>
+                <Icon20PlaceOutline width={16} height={16} />
+                {sessionStore.city}
+              </LocationWrapper>
+            )}
           </ProfileWrapper>
 
           <InterestsHeading>Мои интересы</InterestsHeading>
@@ -384,4 +423,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default observer(UserProfile);

@@ -149,34 +149,7 @@ interface Notification {
 
 export function NotificationsPage() {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 21,
-      title: "Пляжный волейбол",
-      date: "22/06/26",
-      time: "18:00",
-      location: "Крестовский",
-      image:
-        "https://avatars.mds.yandex.net/i?id=3e05b5156f8aa35dbfb69f098b777ad2b337ff16-10350639-images-thumbs&n=13",
-    },
-    {
-      id: 22,
-      title: "Настольные игры",
-      date: "24/06/26",
-      time: "19:30",
-      location: "Тайм-кафе 'Узел'",
-      image: "https://cdnstatic.rg.ru/uploads/images/2026/01/21/istock-1371077531_52c.jpg",
-    },
-    {
-      id: 23,
-      title: "Прогулка на сапах",
-      date: "26/06/26",
-      time: "08:00",
-      location: "Лахтинский разлив",
-      image:
-        "https://images.unsplash.com/photo-1517176118179-65244903d13c?auto=format&fit=crop&q=80&w=200",
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [accepted, setAccepted] = useState<Set<number>>(new Set());
 
   const handleDelete = (id: number) => {
@@ -269,7 +242,7 @@ export function NotificationsPage() {
               color: "#818c99",
             }}
           >
-            Нет уведомлений
+            Пока нет уведомлений. Здесь появятся приглашения на поводы.
           </div>
         )}
       </Content>
