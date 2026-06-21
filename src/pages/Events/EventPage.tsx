@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { eventStore } from "../../stores/EventStore";
 import { commentsAPI, type Comment as ApiComment } from "../../services/api";
 import { sessionStore } from "../../stores/sessionStore";
+import bridge from "@vkontakte/vk-bridge";
 import {
   Panel,
   PanelHeader,
@@ -23,6 +24,7 @@ import {
   Icon28PlaceOutline,
   Icon28UsersOutline,
   Icon24Done,
+  Icon28ShareOutline,
 } from "@vkontakte/icons";
 import { EventMap } from "../../components/EventMap/EventMap";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -135,6 +137,29 @@ function EventPageComponent() {
     setLoading(false);
   };
 
+  // «Пригласи одним кликом» — шеринг через VK Bridge, в браузере — фолбэк
+  const handleInvite = async () => {
+    const link = "https://vk.com/app54645823";
+    try {
+      await bridge.send("VKWebAppShare", { link });
+    } catch {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "POVOD", text: eventData.title, url: link });
+          return;
+        } catch {
+          /* пользователь отменил шеринг */
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(link);
+        alert("Ссылка на приложение скопирована:\n" + link);
+      } catch {
+        /* буфер обмена недоступен */
+      }
+    }
+  };
+
   const handleAddComment = async () => {
     const text = commentText.trim();
     if (!text || posting || !id) return;
@@ -216,6 +241,17 @@ function EventPageComponent() {
               </Button>
             </>
           )}
+
+          <div style={{ height: 8 }} />
+          <Button
+            size="l"
+            stretched
+            mode="outline"
+            before={<Icon28ShareOutline width={20} height={20} />}
+            onClick={handleInvite}
+          >
+            Пригласить друзей
+          </Button>
         </div>
 
         <Separator />
