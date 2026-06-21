@@ -181,6 +181,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
 
   const [friends, setFriends] = useState<{ id: string; name: string; avatar?: string }[]>([]);
+  const [city, setCity] = useState("");
 
   useEffect(() => {
     // Реальные интересы пользователя (его выбор) — из локального хранилища
@@ -205,6 +206,19 @@ const UserProfile = () => {
       })) as { access_token?: string };
       const token = tokenRes.access_token;
       if (!token) return;
+
+      // Город через users.get (надёжнее, чем VKWebAppGetUserInfo)
+      try {
+        const ures = (await bridge.send("VKWebAppCallAPIMethod", {
+          method: "users.get",
+          params: { access_token: token, v: "5.131", fields: "city" },
+        })) as { response?: Array<{ city?: { title?: string } }> };
+        const c = ures.response?.[0]?.city?.title;
+        if (c) setCity(c);
+      } catch {
+        /* город не получили — не критично */
+      }
+
       const apiRes = (await bridge.send("VKWebAppCallAPIMethod", {
         method: "friends.get",
         params: {
@@ -296,10 +310,10 @@ const UserProfile = () => {
           <ProfileWrapper>
             <Avatar size={96} src={sessionStore.user.avatar} />
             <UserName>{sessionStore.user.name}</UserName>
-            {sessionStore.city && (
+            {(city || sessionStore.city) && (
               <LocationWrapper>
                 <Icon20PlaceOutline width={16} height={16} />
-                {sessionStore.city}
+                {city || sessionStore.city}
               </LocationWrapper>
             )}
           </ProfileWrapper>
